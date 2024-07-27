@@ -1,7 +1,8 @@
 import sys
 import copy
 from collections import deque
-
+from collections import defaultdict as ha
+import heapq
 
 
 K,M = map(int, input().split())
@@ -23,16 +24,21 @@ def bfs(i,j): #조각 소거 개수
         for k in range(4):
             ny = dy[k] + y
             nx = dx[k] + x
-            if 0 <= ny < 5 and 0 <= nx < 5 and not visited[ny][nx] and pan[ny][nx] == pan[y][x]:
-                visited[ny][nx] = True
-                chose.append([ny, nx])
-                q.append([ny,nx])
-                cnt += 1
+            if 0 <= ny < 5 and 0 <= nx < 5 and visited[ny][nx] == False and pan[ny][nx] == pan[y][x] and pan[ny][nx] != 0:
+                    visited[ny][nx] = True
+                    chose.append([ny, nx])
+                    q.append([ny,nx])
+                    cnt += 1
+
+
 
     if cnt < 3:
         for _ in range(cnt):
             y,x = chose.pop()
             visited[y][x] = False
+
+
+
 
 def bbfs(i,j): #조각 소거 개수
     global visited, cchose
@@ -49,11 +55,13 @@ def bbfs(i,j): #조각 소거 개수
         for k in range(4):
             ny = dy[k] + y
             nx = dx[k] + x
-            if 0 <= ny < 5 and 0 <= nx < 5 and not visited[ny][nx] and fpan[ny][nx] == fpan[y][x]:
-                visited[ny][nx] = True
-                cchose.append([ny, nx])
-                qqq.append([ny,nx])
-                cnt += 1
+            if 0 <= ny < 5 and 0 <= nx < 5 and visited[ny][nx] == False and fpan[ny][nx] == fpan[y][x]:
+                    visited[ny][nx] = True
+                    cchose.append([ny, nx])
+                    qqq.append([ny,nx])
+                    cnt += 1
+
+
 
     if cnt < 3:
         for _ in range(cnt):
@@ -75,13 +83,11 @@ def rotate(y,x):
 
     return hey
 
-#1-1. 돌릴수 있는 중심 좌표 안에 3*3에서만 선정 가능함으로 그 9개 좌표들을 돌림
-angle = -1
-center = (0,0)
-final = []
 realans = []
-
 for _ in range(K):
+    final = []
+    center = (0, 0)
+    angle = -1
     ans = 0
     for i in range(1,4):
         for j in range(1,4):
@@ -93,11 +99,14 @@ for _ in range(K):
                 # 2-1 1차획득 돌려서 나오는 가장 큰 수, 좌표 저장
                 visited = [[False] * 5 for _ in range(5)]
                 chose = []
+                # print("중점",i,j,pp)
                 for q in range(5):
                     for w in range(5):
-                        if not visited[q][w]:
+                        if visited[q][w] == False and pan[q][w] != 0:
                             bfs(q,w)
-
+                # for row in visited:
+                #     print(row)
+                # print(chose)
                 if len(chose) > len(final):
                     angle = pp
                     center = (i,j)
@@ -120,22 +129,26 @@ for _ in range(K):
                             fpan = copy.deepcopy(pan)
                         # 2-4 열이 같다면, 행이 가장 작은 구간
                         elif yy == i:
+                            yy, xx = center
                             if xx > j:
                                 angle = pp
                                 center = (i, j)
                                 final = chose
                                 fpan = copy.deepcopy(pan)
 
+
     while True:
+
         ans += len(final)
 
         # 3 유물 소거 bfs로 완료
-        for y, x in final:
+        for i in final:
+            y,x = i
             fpan[y][x] = 0
-        # 4 조각추가 리스트에 있는거 차례대로 어펜드
 
+        # 4 조각추가 리스트에 있는거 차례대로 어펜드
         for i in range(5):
-            for j in range(4, -1, -1):
+            for j in range(4,-1,-1):
                 if fpan[j][i] == 0:
                     if piece:
                         fpan[j][i] = piece.pop(0)
@@ -146,7 +159,7 @@ for _ in range(K):
 
         for q in range(5):
             for w in range(5):
-                if not visited[q][w]:
+                if visited[q][w] == False and fpan[q][w] != 0:
                     bbfs(q,w)
 
         final = cchose
@@ -159,5 +172,6 @@ for _ in range(K):
         realans.append(ans)
     else:
         break
+
 
 print(*realans)
