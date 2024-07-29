@@ -2,6 +2,7 @@ import sys
 import copy
 from collections import deque
 
+
 santas = {}
 N, M, P, C, D = map(int, input().split())
 finalscore = [0] * (P + 1)
@@ -30,9 +31,7 @@ def roumove():
     y, x = rou.popleft()
     a = santas.values()
     game[y][x] = 0
-    # print("a in roumove")
-    # print(santas)
-    # print("-----------")
+
     for i in a:
 
         sy, sx = i
@@ -94,8 +93,7 @@ def roupush(y,x,dirc):
             else:
                 santas.pop(num) #밀려나가면 탈락
                 break
-    # print("In roupush")
-    # print(santas)
+  
 #산타 위치 변경 추가
 def gamecheck():
     cnt = 0
@@ -110,11 +108,12 @@ def gamecheck():
 
 def santapush():
     global santas
+    out = []
     ry,rx = rou.popleft()
     rou.append([ry,rx])
     newloc = []
     a = santas.values()
-    # print(santas)
+
     for i in a:
         y,x = i
         num = game[y][x]
@@ -164,7 +163,8 @@ def santapush():
                             nx = nx + sdx[dirc]
                             num = newnum
                     else:
-                          # 밀려나가면 탈락
+                        if num in newloc:
+                            out.append([ny,nx, num])  # 밀려나가면 탈락
                         break
             else:
                 game[y][x] = num
@@ -178,8 +178,10 @@ def santapush():
         y,x,num = l
         santas.update({num: [y,x]})
 
-    # print("In santapush")
-    # print(santas)
+    for ll in out:
+        y,x,num = ll
+        santas.pop(num)
+
 def wakeup():
     for i in range(P + 1):
         if ban[i] > 0:
@@ -199,32 +201,19 @@ def bonus():
 for _ in range(M):
     rouy, roux, dirc = roumove()  # 목표 설정및 돌진
     roupush(rouy,roux, dirc) #상호작용 및 루돌프 이동
-    # print("after rou move")
-    # for row in game:
-    #     print(row)
-    # print("------------")
+
     valid = gamecheck() #게임 진행여부
     if valid == False:
         break
     santas = dict(sorted(santas.items()))
     santapush() #산타 움직이고 날라감
-    # print("after santa move")
-    # for row in game:
-    #     print(row)
-    # print("------------")
+
     valid = gamecheck() #게임 진행여부
     if valid == False:
         break
     wakeup() #벤 한턴씩 까기
     bonus() #점수 추가
-    # print("final")
-    # for row in game:
-    #     print(row)
-    # print("------------")
-    # print(finalscore)
-    # print("------------")
-    # print(ban)
 
 for i in finalscore:
-    if i != 0:
+    if i > 0:
         print(i, end = " ")
