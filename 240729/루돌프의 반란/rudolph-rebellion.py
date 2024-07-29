@@ -2,7 +2,6 @@ import sys
 import copy
 from collections import deque
 
-
 santas = {}
 N, M, P, C, D = map(int, input().split())
 finalscore = [0] * (P + 1)
@@ -93,7 +92,7 @@ def roupush(y,x,dirc):
             else:
                 santas.pop(num) #밀려나가면 탈락
                 break
-  
+ 
 #산타 위치 변경 추가
 def gamecheck():
     cnt = 0
@@ -114,63 +113,64 @@ def santapush():
     newloc = []
     a = santas.values()
 
+
     for i in a:
         y,x = i
-        num = game[y][x]
-        curr = ((ry - y) ** 2) + ((rx - x) ** 2)
-        # print(num)
-        # print(santas)
-        newy, newx = y, x
-        if ban[num] == 0: #벤당한애들 위치 새로 설정해야함
-            for j in range(4):  #새로운 위치 구하기
-                ny = y + sdy[j]
-                nx = x + sdx[j]
-                if 0 <= ny < N and 0 <= nx < N and (game[ny][nx] == 0 or game[ny][nx] == P + 1): #체크필요
-                    dist = ((ry - ny) ** 2) + ((rx - nx) ** 2)
-                    if curr > dist:
-                        newy,newx = ny,nx
-                        curr = dist
-                        dirc = j
-            game[y][x] = 0
-            y = newy #새로운 위치
-            x = newx
+        if game[y][x] != 0:
+            num = game[y][x]
+            curr = ((ry - y) ** 2) + ((rx - x) ** 2)
 
-            if [y,x] == [ry,rx]:
-                finalscore[num] += D #찾은 산타에서 점수 추가
-                ban[num] = 2 #기절
-                if dirc == 0: #진행방향과 반대로 밀려남
-                    dirc = 2
-                elif dirc == 1:
-                    dirc = 3
-                elif dirc == 2:
-                    dirc = 0
-                elif dirc == 3:
-                    dirc = 1
+            newy, newx = y, x
+            if ban[num] == 0: #벤당한애들 위치 새로 설정해야함
+                for j in range(4):  #새로운 위치 구하기
+                    ny = y + sdy[j]
+                    nx = x + sdx[j]
+                    if 0 <= ny < N and 0 <= nx < N and (game[ny][nx] == 0 or game[ny][nx] == P + 1): #체크필요
+                        dist = ((ry - ny) ** 2) + ((rx - nx) ** 2)
+                        if curr > dist:
+                            newy,newx = ny,nx
+                            curr = dist
+                            dirc = j
+                game[y][x] = 0
+                y = newy #새로운 위치
+                x = newx
 
-                ny = y + D * sdy[dirc]
-                nx = x + D * sdx[dirc]  # D만큼 튕겨나감
-                while True:
-                    if 0 <= ny < N and 0 <= nx < N:
-                        if game[ny][nx] == 0:
-                            game[ny][nx] = num
-                            newloc.append([ny,nx,num])
-                            break
+                if [y,x] == [ry,rx]:
+                    finalscore[num] += D #찾은 산타에서 점수 추가
+                    ban[num] = 2 #기절
+                    if dirc == 0: #진행방향과 반대로 밀려남
+                        dirc = 2
+                    elif dirc == 1:
+                        dirc = 3
+                    elif dirc == 2:
+                        dirc = 0
+                    elif dirc == 3:
+                        dirc = 1
+
+                    ny = y + D * sdy[dirc]
+                    nx = x + D * sdx[dirc]  # D만큼 튕겨나감
+                    while True:
+                        if 0 <= ny < N and 0 <= nx < N:
+                            if game[ny][nx] == 0:
+                                game[ny][nx] = num
+                                newloc.append([ny,nx,num])
+                                break
+                            else:
+                                newnum = game[ny][nx]
+                                game[ny][nx] = num
+                                newloc.append([ny, nx, num])
+                                ny = ny + sdy[dirc]
+                                nx = nx + sdx[dirc]
+                                num = newnum
                         else:
-                            newnum = game[ny][nx]
-                            game[ny][nx] = num
-                            newloc.append([ny, nx, num])
-                            ny = ny + sdy[dirc]
-                            nx = nx + sdx[dirc]
-                            num = newnum
-                    else:
-                        if num in newloc:
-                            out.append([ny,nx, num])  # 밀려나가면 탈락
-                        break
-            else:
-                game[y][x] = num
-                newloc.append([y,x,num])
-        else: #벤당했을때
-            newloc.append([y, x, num]) #그대로
+                            if num in newloc:
+                                out.append([ny,nx, num])  # 밀려나가면 탈락
+                            break
+                else:
+                    game[y][x] = num
+                    newloc.append([y,x,num])
+            else: #벤당했을때
+                newloc.append([y, x, num]) #그대로
 
 
     santas.clear()
@@ -182,6 +182,7 @@ def santapush():
         y,x,num = ll
         santas.pop(num)
 
+    return santas
 def wakeup():
     for i in range(P + 1):
         if ban[i] > 0:
@@ -206,14 +207,21 @@ for _ in range(M):
     if valid == False:
         break
     santas = dict(sorted(santas.items()))
-    santapush() #산타 움직이고 날라감
+    santas = santapush() #산타 움직이고 날라감
 
     valid = gamecheck() #게임 진행여부
     if valid == False:
         break
     wakeup() #벤 한턴씩 까기
     bonus() #점수 추가
+    # print("final")
+    # for row in game:
+    #     print(row)
+    # print("------------")
+    # print(finalscore)
+    # print("------------")
+    # print(ban)
 
 for i in finalscore:
     if i > 0:
-        print(i, end = " ")
+        print(i, end= " ")
