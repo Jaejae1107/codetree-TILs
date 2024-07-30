@@ -23,7 +23,7 @@ def night_move(oi, od):
         elif in_range(nx, ny) and visited[nx][ny] == False and n_board[nx][ny] != oi:
             if n_board[nx][ny] != 0:  # 빈공간이 아니라면
                 r1, c1, h1, w1, k1 = night_info[n_board[nx][ny]]
-                **move_number.append(n_board[nx][ny])**
+                move_number.append(n_board[nx][ny])
                 for k1 in range(r1, r1 + h1):
                     for k2 in range(c1, c1 + w1):
                         queue.append((k1, k2))
@@ -37,6 +37,7 @@ def night_move(oi, od):
 
 import sys
 from collections import deque
+
 
 
 dx = [-1, 0, 1, 0]
