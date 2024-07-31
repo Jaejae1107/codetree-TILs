@@ -19,7 +19,7 @@ def move():
     dy = [-1,1,0,0]
     dx = [0,0,1,-1]
     ey,ex = exit
-    # print(ey,ex)
+
     newq = []
     while q:
         y,x = q.popleft() #이동
@@ -180,12 +180,12 @@ def rotate(maxy, maxx, miny, minx):
                 for k in ppl[i][j]:
                     q.append([i,j])
 
-    # print(q)
+
 
 def check():
     for i in range(N):
         for j in range(N):
-            if len(ppl[i][j]) > 0 and ppl[i][j] != [20]:
+            if len(ppl[i][j]) > 0  and ppl[i][j] != [20]:
                 return True
 
     return False
@@ -196,29 +196,17 @@ def check():
 movee = 0
 for _ in range(K): #k번 반복
     ppl = move() #다 같이 이동
-    # print(movee, "move")
-    # for row in game:
-    #     print(row)
-    # print("------------")
-    #
-    # for row in ppl:
-    #     print(row)
-    # print("------------ppl")
+
+    valid = check()
+    if not valid:
+        break
     maxy, maxx, miny, minx = rotatepoint()
     # print(maxy, maxx, miny, minx, "모든 값들")
     rotate(maxy, maxx, miny, minx) #다 돌고
     valid = check()
     if not valid:
         break
-    # print("돌고난 이후")
-    # for row in game:
-    #     print(row)
-    # print("------------")
-    #
-    # for row in ppl:
-    #     print(row)
-    # print("------------ppl")
-    # print("한번 끝")
+
 print(movee)
 y,x = exit
 print(y + 1, x + 1)
